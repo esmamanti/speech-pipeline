@@ -29,6 +29,7 @@ class Transcriber:
         self.language = params["language"]          # None = detect from the audio
         self.beam_size = params["beam_size"]
         self.max_chunk = params["max_chunk"]
+        self.prompt_words = params["prompt_words"]
 
         model_dir = project_path(cfg, "models") / params["model"]
         if not (model_dir / "model.bin").exists():
@@ -52,7 +53,10 @@ class Transcriber:
                 language=language,
                 beam_size=self.beam_size,
                 word_timestamps=True,
-                condition_on_previous_text=False,   # avoids repetition loops across chunks
+                # The end of the previous chunk is given as a prompt: Whisper keeps the
+                # context and the writing style (casing, punctuation) across chunks.
+                initial_prompt=_recent_text(words, self.prompt_words),
+                condition_on_previous_text=False,   # no feedback inside a chunk: avoids repetition loops
                 vad_filter=False,                    # VAD has already been applied
             )
             language = language or info.language    # detect once, then keep it
@@ -62,6 +66,13 @@ class Transcriber:
                     if text:
                         words.append(Word(text, chunk.start + w.start, chunk.start + w.end, w.probability))
         return words, language
+
+
+def _recent_text(words: list[Word], count: int) -> str | None:
+    """The last `count` recognised words as plain text (None at the start)."""
+    if not words or count <= 0:
+        return None
+    return " ".join(w.text for w in words[-count:])
 
 
 def group_regions(regions: list[SpeechRegion], max_length: float) -> list[SpeechRegion]:
@@ -123,14 +134,3 @@ def main() -> None:
     print(f"  device         : {transcriber.device} ({transcriber.compute_type})")
     print(f"  model loading  : {load_time:.1f} s")
     print(f"  transcription  : {elapsed:.1f} s for {length:.0f} s audio (RTF {elapsed / length:.3f})")
-    print(f"  language       : {language}")
-    print(f"  words          : {len(words)}")
-    print(f"  low confidence : {sum(w.probability < 0.5 for w in words)} words below 0.5")
-    print("  transcript (start of each line in seconds):")
-    for i in range(0, min(len(words), args.lines * 12), 12):
-        line = words[i:i + 12]
-        print(f"    [{line[0].start:6.1f}] {' '.join(w.text for w in line)}")
-
-
-if __name__ == "__main__":
-    main()
