@@ -12,6 +12,10 @@ dependencies = [
     "soundfile",
     "pyyaml",
     "sherpa-onnx>=1.10",
+    "faster-whisper>=1.1",
+    # CUDA 12 libraries that faster-whisper (CTranslate2) needs to run on the GPU
+    "nvidia-cublas-cu12; platform_system != 'Darwin'",
+    "nvidia-cudnn-cu12>=9,<10; platform_system != 'Darwin'",
 ]
 
 [tool.setuptools.packages.find]

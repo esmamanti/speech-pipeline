@@ -29,3 +29,12 @@ diarization:
   min_speaker_time: 2.0        # absolute floor for a real speaker's talk time (s)
   min_speaker_ratio: 0.01      # ...or this share of all speech, whichever is larger
   min_similarity: 0.3          # below this cosine similarity a fragment is left alone
+  
+  
+asr:
+  model: faster-whisper-large-v3-turbo
+  device: auto                 # auto = GPU if available, else CPU
+  compute_type: auto           # auto = float16 on GPU, int8 on CPU
+  language: en                 # test clip is English; null = detect automatically; "tr" for Turkish
+  beam_size: 5                 # decoding search width (higher = slightly better, slower)
+  max_chunk: 30.0              # speech regions are grouped into chunks of at most this length (s)

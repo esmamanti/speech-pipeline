@@ -8,7 +8,7 @@ from speech_pipeline.config import load_config, project_path, relative
 SHERPA = "https://github.com/k2-fsa/sherpa-onnx/releases/download"
 
 # name in models/ (file or folder) -> download URL
-MODELS = {
+SHERPA_MODELS = {
     # VAD
     "silero_vad.onnx": f"{SHERPA}/asr-models/silero_vad.onnx",
     # Diarization: segmentation (archive -> folder) and speaker embedding
@@ -17,8 +17,13 @@ MODELS = {
     "nemo_en_titanet_small.onnx": f"{SHERPA}/speaker-recongition-models/nemo_en_titanet_small.onnx",
 }
 
+# ASR: faster-whisper (CTranslate2) model name -> folder in models/
+WHISPER_MODELS = {
+    "large-v3-turbo": "faster-whisper-large-v3-turbo",
+}
 
-def download(url: str, dest) -> None:
+
+def download_file(url: str, dest) -> None:
     if dest.exists():
         print(f"ok    {relative(dest)}")
         return
@@ -36,11 +41,24 @@ def download(url: str, dest) -> None:
         print(f"      unpacked {relative(dest)}")
 
 
+def download_whisper(name: str, dest) -> None:
+    if (dest / "model.bin").exists():
+        print(f"ok    {relative(dest)}")
+        return
+    from faster_whisper.utils import download_model
+    print(f"get   {relative(dest)} (Whisper {name}, ~1.6 GB, this takes a while) ...", flush=True)
+    download_model(name, output_dir=str(dest))
+    size = sum(f.stat().st_size for f in dest.rglob("*") if f.is_file())
+    print(f"      {size / 1e9:.2f} GB")
+
+
 def main() -> None:
     folder = project_path(load_config(), "models")
     folder.mkdir(exist_ok=True)
-    for name, url in MODELS.items():
-        download(url, folder / name)
+    for name, url in SHERPA_MODELS.items():
+        download_file(url, folder / name)
+    for name, subfolder in WHISPER_MODELS.items():
+        download_whisper(name, folder / subfolder)
     print("done")
 
 
