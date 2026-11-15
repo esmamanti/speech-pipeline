@@ -1,0 +1,6 @@
+# Pipeline settings. Paths are relative to the project root.
+
+paths:
+  models: models
+  processed: data/processed
+  outputs: outputs
