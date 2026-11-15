@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "speech-pipeline"
+version = "0.1.0"
+description = "VAD + speaker diarization + ASR pipeline (first stage of a voice agent)"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "soundfile",
+    "pyyaml",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
