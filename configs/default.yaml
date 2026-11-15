@@ -4,3 +4,11 @@ paths:
   models: models
   processed: data/processed
   outputs: outputs
+
+vad:
+  model: silero_vad.onnx
+  speech_threshold: 0.5        # speech probability cut-off (Silero default)
+  min_speech_duration: 0.25    # ignore speech blips shorter than this (s)
+  min_silence_duration: 0.3    # pauses shorter than this do not split a region (s)
+  max_speech_duration: 30.0    # force a split in very long regions (s)
+  padding: 0.1                 # extend each region on both sides so word edges are not cut (s)

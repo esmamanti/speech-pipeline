@@ -11,6 +11,7 @@ dependencies = [
     "numpy",
     "soundfile",
     "pyyaml",
+    "sherpa-onnx>=1.10",
 ]
 
 [tool.setuptools.packages.find]
