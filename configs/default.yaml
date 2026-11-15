@@ -12,3 +12,20 @@ vad:
   min_silence_duration: 0.3    # pauses shorter than this do not split a region (s)
   max_speech_duration: 30.0    # force a split in very long regions (s)
   padding: 0.1                 # extend each region on both sides so word edges are not cut (s)
+
+diarization:
+  segmentation: sherpa-onnx-pyannote-segmentation-3-0/model.onnx
+  embedding: nemo_en_titanet_small.onnx
+  num_speakers: null           # null = estimate automatically (we do not give the count)
+  cluster_threshold: 0.75       # max distance for "same speaker" during clustering
+  min_duration_on: 0.3         # drop speaker turns shorter than this (s)
+  min_duration_off: 0.5        # fill pauses shorter than this inside one speaker's turn (s)
+  num_threads: 4
+
+  # Small-speaker merging (like pyannote's min_cluster_size): a "speaker" with very
+  # little talk time is usually a fragment of a real speaker (e.g. from overlapping
+  # speech), so it is reassigned to the real speaker whose voice it resembles most.
+  merge_small_speakers: true
+  min_speaker_time: 2.0        # absolute floor for a real speaker's talk time (s)
+  min_speaker_ratio: 0.01      # ...or this share of all speech, whichever is larger
+  min_similarity: 0.3          # below this cosine similarity a fragment is left alone
